@@ -1,0 +1,318 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "d646dd6b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import jax.numpy as jnp"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 40,
+   "id": "c0c3faf5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "n = 500\n",
+    "X_sample_mean = 5.04\n",
+    "X_sample_variance = 8.62\n",
+    "Y_sample_mean = 15.03\n",
+    "Y_sample_variance = 9.24\n",
+    "residual_standard_error = 1.008"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6e5f51e6",
+   "metadata": {},
+   "source": [
+    "Q2.3"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "id": "4b7b9403",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "SST =  4610.76\n"
+     ]
+    }
+   ],
+   "source": [
+    "def SST(Y_sample_v, sample_size):\n",
+    "    return (sample_size-1)*Y_sample_v \n",
+    "print(\"SST = \", SST(Y_sample_variance, n))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a308d723",
+   "metadata": {},
+   "source": [
+    "Q2.4"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "id": "c5789ee1",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "SSE =  505.99987200000004\n"
+     ]
+    }
+   ],
+   "source": [
+    "def SSE(sigma_hat, sample_size):\n",
+    "    return pow(sigma_hat, 2) * (sample_size -2)\n",
+    "print(\"SSE = \", SSE(residual_standard_error, n))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9b4864c5",
+   "metadata": {},
+   "source": [
+    "Q2.5"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "id": "663a109d",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "SSR =  4104.760128\n"
+     ]
+    }
+   ],
+   "source": [
+    "def SSR(Y_sample_v, sample_size, sigma_hat):\n",
+    "    return SST(Y_sample_v, sample_size) - SSE(sigma_hat, sample_size)\n",
+    "print(\"SSR = \", SSR(Y_sample_variance, n, residual_standard_error))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "80c17965",
+   "metadata": {},
+   "source": [
+    "Q2.6"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 44,
+   "id": "32d45d46",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Sxx =  4301.379999999999\n"
+     ]
+    }
+   ],
+   "source": [
+    "def Sxx(X_sample_v, sample_size):\n",
+    "    return (sample_size-1)*X_sample_v\n",
+    "print(\"Sxx = \", Sxx(X_sample_variance, n))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 45,
+   "id": "385d1946",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "R_square = 0.8902567316451083\n"
+     ]
+    }
+   ],
+   "source": [
+    "def R_square(Y_sample_v, sample_size, sigma_hat):\n",
+    "    return SSR(Y_sample_v, sample_size, sigma_hat)/SST(Y_sample_v, sample_size)\n",
+    "print(\"R_square =\", R_square(Y_sample_variance, n, residual_standard_error))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "72451654",
+   "metadata": {},
+   "source": [
+    "Q2.7"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 46,
+   "id": "6e30c20a",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Beta2 =  0.9768772278930261\n"
+     ]
+    }
+   ],
+   "source": [
+    "def Beta2(Y_sample_v, sample_size, sigma_hat, X_sample_v):\n",
+    "    return pow(SSR(Y_sample_v, sample_size, sigma_hat)/Sxx(X_sample_v, sample_size), 0.5)\n",
+    "print(\"Beta2 = \", Beta2(Y_sample_variance, n, residual_standard_error, X_sample_variance))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 55,
+   "id": "481c6dce",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Beta1 =  10.106538771419148\n"
+     ]
+    }
+   ],
+   "source": [
+    "def Beta1(Y_sample_m, Y_sample_v, sample_size, sigma_hat, X_sample_v, X_sample_m):\n",
+    "    return Y_sample_m - Beta2(Y_sample_v, sample_size, sigma_hat, X_sample_v) * X_sample_m\n",
+    "print(\"Beta1 = \", Beta1(Y_sample_mean, Y_sample_variance, n, residual_standard_error,X_sample_variance ,X_sample_mean))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 57,
+   "id": "a77a570e",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "SST =  4610.76\n",
+      "SSE =  505.99987200000004\n",
+      "SSR =  4104.760128\n",
+      "Sxx =  4301.379999999999\n",
+      "R_square = 0.8902567316451083\n",
+      "Beta2 =  0.9768772278930261\n",
+      "Beta1 =  10.106538771419148\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"SST = \", SST(Y_sample_variance, n))\n",
+    "print(\"SSE = \", SSE(residual_standard_error, n))\n",
+    "print(\"SSR = \", SSR(Y_sample_variance, n, residual_standard_error))\n",
+    "print(\"Sxx = \", Sxx(X_sample_variance, n))\n",
+    "print(\"R_square =\", R_square(Y_sample_variance, n, residual_standard_error))\n",
+    "print(\"Beta2 = \", Beta2(Y_sample_variance, n, residual_standard_error, X_sample_variance))\n",
+    "print(\"Beta1 = \", Beta1(Y_sample_mean, Y_sample_variance, n, residual_standard_error,X_sample_variance ,X_sample_mean))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5f295e1c",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e198f5ca",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.3"
+  },
+  "toc": {
+   "base_numbering": 1,
+   "nav_menu": {},
+   "number_sections": true,
+   "sideBar": true,
+   "skip_h1_title": false,
+   "title_cell": "Table of Contents",
+   "title_sidebar": "Contents",
+   "toc_cell": false,
+   "toc_position": {},
+   "toc_section_display": true,
+   "toc_window_display": false
+  },
+  "varInspector": {
+   "cols": {
+    "lenName": 16,
+    "lenType": 16,
+    "lenVar": 40
+   },
+   "kernels_config": {
+    "python": {
+     "delete_cmd_postfix": "",
+     "delete_cmd_prefix": "del ",
+     "library": "var_list.py",
+     "varRefreshCmd": "print(var_dic_list())"
+    },
+    "r": {
+     "delete_cmd_postfix": ") ",
+     "delete_cmd_prefix": "rm(",
+     "library": "var_list.r",
+     "varRefreshCmd": "cat(var_dic_list()) "
+    }
+   },
+   "types_to_exclude": [
+    "module",
+    "function",
+    "builtin_function_or_method",
+    "instance",
+    "_Feature"
+   ],
+   "window_display": false
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
